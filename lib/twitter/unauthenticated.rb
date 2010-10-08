@@ -92,9 +92,9 @@ module Twitter
       end.body
     end
 
-    def profile_image(screen_name)
+    def profile_image(screen_name, options = {})
       connection_with_unparsed_response.get do |request|
-        request.url "users/profile_image/#{screen_name}.json"
+        request.url "users/profile_image/#{screen_name}.json", options
       end.headers["location"]
     end
     
