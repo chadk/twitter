@@ -1,24 +1,24 @@
 require 'test_helper'
 
 class BaseTest < Test::Unit::TestCase
-  
+
   context "base" do
     setup do
-      Twitter.configure do |config|
-        config.consumer_key = 'ctoken'
-        config.consumer_secret = 'csecret'
-        config.access_key = 'atoken'
-        config.access_secret = 'asecret'
-      end
-      
       @client = Twitter::Base.new
     end
 
     context "initialize" do
       should "accept oauth params" do
-        assert_equal @client.consumer_key, 'ctoken'
+        Twitter.configure do |config|
+          config.consumer_key = 'ctoken'
+          config.consumer_secret = 'csecret'
+          config.access_key = 'atoken'
+          config.access_secret = 'asecret'
+        end
+        client = Twitter::Base.new
+        assert_equal client.consumer_key, 'ctoken'
       end
-      
+
       should "override oauth params" do
         oauth = {
           :access_key      => "atoken",
@@ -138,6 +138,11 @@ class BaseTest < Test::Unit::TestCase
       should "get a user by screen_name" do
         stub_get('/1/users/show.json?screen_name=sferik', 'hash.json')
         assert @client.user('sferik')
+      end
+
+      should "get a user's profile image" do
+        stub_get('/1/users/profile_image/ratherchad.json', 'n605431196_2079896_558_normal.jpg', 302, 'http://a3.twimg.com/profile_images/1107413683/n605431196_2079896_558_normal.jpg')
+        assert @client.profile_image('ratherchad')
       end
 
       should "get single user with the users method" do

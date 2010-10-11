@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class UnauthenticatedTest < Test::Unit::TestCase
-  include Twitter
 
   should "get the firehose" do
     stub_get('/1/statuses/public_timeline.json', 'array.json')
@@ -16,6 +15,11 @@ class UnauthenticatedTest < Test::Unit::TestCase
   should "get a user by screen_name" do
     stub_get('/1/users/show/sferik.json', 'hash.json')
     assert Twitter.user('sferik')
+  end
+
+  should "get a user's profile image" do
+    stub_get('/1/users/profile_image/ratherchad.json', 'n605431196_2079896_558_normal.jpg', 302, 'http://a3.twimg.com/profile_images/1107413683/n605431196_2079896_558_normal.jpg')
+    assert Twitter.profile_image('ratherchad')
   end
 
   should "get suggestions" do
@@ -63,23 +67,9 @@ class UnauthenticatedTest < Test::Unit::TestCase
     assert Twitter.status(1533815199)
   end
 
-  should "raise NotFound for a request to a deleted or nonexistent status" do
-    stub_get('/1/statuses/show/1.json', 'not_found.json', 404)
-    assert_raise Twitter::NotFound do
-      Twitter.status(1)
-    end
-  end
-
   should "get a user timeline" do
     stub_get('/1/statuses/user_timeline.json?screen_name=sferik', 'array.json')
     assert Twitter.timeline('sferik')
-  end
-
-  should "raise Unauthorized for a request to a protected user's timeline" do
-    stub_get('/1/statuses/user_timeline.json?screen_name=protected', 'unauthorized.json', 401)
-    assert_raise Twitter::Unauthorized do
-      Twitter.timeline('protected')
-    end
   end
 
   should "get friend ids" do
@@ -87,23 +77,9 @@ class UnauthenticatedTest < Test::Unit::TestCase
     assert Twitter.friend_ids('sferik')
   end
 
-  should "raise Unauthorized for a request to a protected user's friend ids" do
-    stub_get('/1/friends/ids.json?screen_name=protected', 'unauthorized.json', 401)
-    assert_raise Twitter::Unauthorized do
-      Twitter.friend_ids('protected')
-    end
-  end
-
   should "get follower ids" do
     stub_get('/1/followers/ids.json?screen_name=sferik', 'array.json')
     assert Twitter.follower_ids('sferik')
-  end
-
-  should "raise Unauthorized for a request to a protected user's follower ids" do
-    stub_get('/1/followers/ids.json?screen_name=protected', 'unauthorized.json', 401)
-    assert_raise Twitter::Unauthorized do
-      Twitter.follower_ids('protected')
-    end
   end
 
   context "when using lists" do
@@ -134,10 +110,4 @@ class UnauthenticatedTest < Test::Unit::TestCase
       assert Twitter.list_timeline('pengwynn', 'rubyists', {:page => 2, :per_page => 1})
     end
   end
-  
-  should "get a user's profile image" do
-    stub_get('/1/users/profile_image/ratherchad.json', 'array.json', nil, 'http://a3.twimg.com/profile_images/1107413683/n605431196_2079896_558_normal.jpg')
-    assert_equal 'http://a3.twimg.com/profile_images/1107413683/n605431196_2079896_558_normal.jpg',  Twitter.profile_image( 'ratherchad' )
-  end
-
 end
